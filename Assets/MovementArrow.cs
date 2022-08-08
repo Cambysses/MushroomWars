@@ -5,261 +5,146 @@ using UnityEngine;
 
 public class MovementArrow : MonoBehaviour
 {
-    // public static void DrawArrowPath(List<Vector3> path)
-    // {
-    //     Sprite[] sprites = Resources.LoadAll<Sprite>("Sprites/UI");
-    //     Sprite sprite = null;
 
-    //     for (int i = 0; i < path.Count; i++)
-    //     {
-    //         if (path.Count == 1)
-    //         {
-    //             continue;
-    //         }
-
-    //         // Draw tail
-    //         if (i == 0)
-    //         {
-    //             // Arrow moving up
-    //             if (path[i + 1].y > path[i].y)
-    //             {
-    //                 sprite = sprites.Where(s => s.name == "arrow_tail_down").First();
-    //             }
-
-    //             // Arrow moving down
-    //             else if (path[i + 1].y < path[i].y)
-    //             {
-    //                 sprite = sprites.Where(s => s.name == "arrow_tail_up").First();
-    //             }
-
-    //             // Arrow moving right
-    //             else if (path[i + 1].x > path[i].x)
-    //             {
-    //                 sprite = sprites.Where(s => s.name == "arrow_tail_left").First();
-    //             }
-
-    //             // Arrow moving left
-    //             else if (path[i + 1].x < path[i].x)
-    //             {
-    //                 sprite = sprites.Where(s => s.name == "arrow_tail_right").First();
-    //             }
-    //         }
-
-    //         // Draw head
-    //         else if (i == path.Count - 1)
-    //         {
-    //             // Arrow moving up
-    //             if (path[i - 1].y > path[i].y)
-    //             {
-    //                 sprite = sprites.Where(s => s.name == "arrow_down").First();
-    //             }
-
-    //             // Arrow moving down
-    //             else if (path[i - 1].y < path[i].y)
-    //             {
-    //                 sprite = sprites.Where(s => s.name == "arrow_up").First();
-    //             }
-
-    //             // Arrow moving right
-    //             else if (path[i - 1].x > path[i].x)
-    //             {
-    //                 sprite = sprites.Where(s => s.name == "arrow_left").First();
-    //             }
-
-    //             // Arrow moving left
-    //             else
-    //             {
-    //                 sprite = sprites.Where(s => s.name == "arrow_right").First();
-    //             }
-    //         }
-
-    //         // Draw straight line
-    //         else if (path.Count > 2 && (path[i].y == path[i - 1].y && path[i].y == path[i + 1].y || path[i].x == path[i - 1].x && path[i].x == path[i + 1].x))
-    //         {
-    //             if (path[i].y == path[i - 1].y && path[i].y == path[i + 1].y)
-    //             {
-    //                 sprite = sprites.Where(s => s.name == "arrow_straight_horizontal").First();
-    //             }
-    //             else
-    //             {
-    //                 sprite = sprites.Where(s => s.name == "arrow_straight_vertical").First();
-    //             }
-    //         }
-
-    //         // Draw curve
-    //         else if (path.Count >= 3)
-    //         {
-    //             // Bottom right curve
-    //             if (path[i - 1].x < path[i].x && path[i + 1].y > path[i].y || path[i - 1].y > path[i].y && path[i + 1].x < path[i].x)
-    //             {
-    //                 sprite = sprites.Where(s => s.name == "arrow_curve_bottomright").First();
-    //             }
-
-    //             // Bottom left curve
-    //             else if (path[i - 1].x > path[i].x && path[i + 1].y > path[i].y || path[i - 1].y > path[i].y && path[i + 1].x > path[i].x)
-    //             {
-    //                 sprite = sprites.Where(s => s.name == "arrow_curve_bottomleft").First();
-    //             }
-
-    //             // Top left curve
-    //             else if (path[i - 1].x > path[i].x && path[i + 1].y < path[i].y || path[i + 1].x > path[i].x && path[i - 1].y < path[i].y)
-    //             {
-    //                 sprite = sprites.Where(s => s.name == "arrow_curve_topleft").First();
-    //             }
-
-    //             // Top right curve
-    //             else if (path[i - 1].x < path[i].x && path[i + 1].y < path[i].y || path[i + 1].x < path[i].x && path[i - 1].y < path[i].y)
-    //             {
-    //                 sprite = sprites.Where(s => s.name == "arrow_curve_topright").First();
-    //             }
-    //         }
-
-    //         DrawArrow(path[i], sprite);
-    //     }
-    // }
+    public Sprite arrowTailDown;
+    public Sprite arrowTailUp;
+    public Sprite arrowTailLeft;
+    public Sprite arrowTailRight;
+    public Sprite arrowDown;
+    public Sprite arrowUp;
+    public Sprite arrowLeft;
+    public Sprite arrowRight;
+    public Sprite arrowStraightHorizontal;
+    public Sprite arrowStraightVertical;
+    public Sprite arrowCurveBottomLeft;
+    public Sprite arrowCurveBottomRight;
+    public Sprite arrowCurveTopLeft;
+    public Sprite arrowCurveTopRight;
 
 
-    // private static void DrawArrow(Vector3 position, Sprite sprite)
-    // {
-    //     GameObject spriteObject = new GameObject() { tag = "MovementArrow" };
-    //     spriteObject.AddComponent<SpriteRenderer>();
-
-    //     spriteObject.transform.position = position;
-    //     spriteObject.GetComponent<SpriteRenderer>().sprite = sprite;
-    // }
-
-
-
-    public static void DrawArrowPath(List<Vector3> path)
+    public void DrawArrowPath(List<Vector3> path)
     {
-        if (path.Count == 1)
-        {
-            return;
-        }
-
-        Sprite[] sprites = Resources.LoadAll<Sprite>("Sprites/UI");
 
         for (int i = 0; i < path.Count; i++)
         {
-            Vector3 prev = i > 1 ? path[i - 1] : Vector3.zero;
+            if (path.Count == 1)
+            {
+                return;
+            }
+
             Vector3 cur = path[i];
-            Vector3 next = path[i + 1];
+            Vector3 next = i < path.Count-1 ? path[i+1] : Vector3.zero;
+            Vector3 prev = i > 0 ? path[i-1] : Vector3.zero;
 
-            bool tail_down = next.y > cur.y;
-            bool tail_up = next.y < cur.y;
-            bool tail_left = next.x < cur.x;
-            bool tail_right = next.x > cur.x;
-
-            bool head_down = prev.y > cur.y;
-            bool head_up = prev.y < cur.y;
-            bool head_right = prev.x > cur.x;
-            bool head_left = prev.x < cur.x;
+            bool tailDown = next.y > cur.y;
+            bool tailUp = next.y < cur.y;
+            bool tailLeft = next.x > cur.x;
+            bool tailRight = next.x < cur.x;
+            bool headDown = prev.y > cur.y;
+            bool headUp = prev.y < cur.y;
+            bool headLeft = prev.x > cur.x;
+            bool headRight = prev.x < cur.x;
 
             // Draw tail
             if (i == 0)
             {
-
-
-                if (tail_down)
-                {
-                    DrawSegment(sprites, cur, "arrow_tail_down");
-                }
-                else if (tail_up)
-                {
-                    DrawSegment(sprites, cur, "arrow_tail_up");
-                }
-                else if (tail_left)
-                {
-                    DrawSegment(sprites, cur, "arrow_tail_left");
-                }
-                else
-                {
-                    DrawSegment(sprites, cur, "arrow_tail_right");
-                }
-            }
-
-            // Draw head
-            else if (i == path.Count - 1)
-            {
-
-
                 // Arrow moving up
-                if (head_down)
+                if (tailDown)
                 {
-                    DrawSegment(sprites, cur, "arrow_down");
+                    DrawSegment(cur, arrowTailDown);
                 }
 
                 // Arrow moving down
-                else if (head_up)
+                else if (tailUp)
                 {
-                    DrawSegment(sprites, cur, "arrow_up");
+                    DrawSegment(cur, arrowTailUp);
                 }
 
                 // Arrow moving right
-                else if (head_right)
+                else if (tailLeft)
                 {
-                    DrawSegment(sprites, cur, "arrow_left");
+                    DrawSegment(cur, arrowTailLeft);
+                }
+
+                // Arrow moving left
+                else if (tailRight)
+                {
+                    DrawSegment(cur, arrowTailRight);
+                }
+            }
+            // Draw head
+            else if (i == path.Count - 1)
+            {
+                // Arrow moving up
+                if (headDown)
+                {
+                    DrawSegment(cur, arrowDown);
+                }
+
+                // Arrow moving down
+                else if (headUp)
+                {
+                    DrawSegment(cur, arrowUp);
+                }
+
+                // Arrow moving right
+                else if (headLeft)
+                {
+                    DrawSegment(cur, arrowLeft);
                 }
 
                 // Arrow moving left
                 else
                 {
-                    DrawSegment(sprites, cur, "arrow_right");
+                    DrawSegment(cur, arrowRight);
                 }
             }
-
             // Draw straight line
-            else if (path.Count > 2 && (cur.y == prev.y && cur.y == next.y || cur.x == prev.x && cur.x == next.x))
+            else if (path.Count > 2 && ((cur.y == prev.y && cur.y == next.y) || (cur.x == prev.x && cur.x == next.x)))
             {
                 if (cur.y == prev.y)
                 {
-                    DrawSegment(sprites, cur, "arrow_straight_horizontal");
+                    DrawSegment(cur, arrowStraightHorizontal);
                 }
                 else
                 {
-                    DrawSegment(sprites, cur, "arrow_straight_vertical");
+                    DrawSegment(cur, arrowStraightVertical);
                 }
             }
             // Draw curve
-            else if (path.Count >= 3)
+            else if ((headRight && tailDown) || (headDown && tailRight))
             {
-                // Bottom right curve
-                if (head_left && tail_down || head_down && tail_left)
-                {
-                    DrawSegment(sprites, cur, "arrow_curve_bottomright");
-                }
-
-                // Bottom left curve
-                else if (head_right && tail_down || head_down && tail_right)
-                {
-                    DrawSegment(sprites, cur, "arrow_curve_bottomleft");
-                }
-
-                // Top left curve
-                else if (head_right && tail_up || tail_right && head_up)
-                {
-                    DrawSegment(sprites, cur, "arrow_curve_topleft");
-                }
-
-                // Top right curve
-                else if (head_left && tail_up || tail_left && head_up)
-                {
-                    DrawSegment(sprites, cur, "arrow_curve_topright");
-                }
+                DrawSegment(cur, arrowCurveBottomRight);
+            }
+            // Bottom left curve
+            else if ((headLeft && tailDown) || (headDown && tailLeft))
+            {
+                DrawSegment(cur, arrowCurveBottomLeft);
+            }
+            // Top left curve
+            else if ((headLeft && tailUp) || (tailLeft && headUp))
+            {
+                DrawSegment(cur, arrowCurveTopLeft);
+            }
+            // Top right curve
+            else if ((headRight && tailUp) || (tailRight && headUp))
+            {
+                DrawSegment(cur, arrowCurveTopRight);
             }
         }
     }
 
-    private static void DrawSegment(Sprite[] sprites, Vector3 position, string sprite_name)
+
+    private static void DrawSegment(Vector3 position, Sprite sprite)
     {
         GameObject spriteObject = new GameObject() { tag = "MovementArrow" };
         spriteObject.AddComponent<SpriteRenderer>();
 
         spriteObject.transform.position = position;
-        spriteObject.GetComponent<SpriteRenderer>().sprite = sprites.Where(s => s.name == sprite_name).First();
+        spriteObject.GetComponent<SpriteRenderer>().sprite = sprite;
     }
 
-    public static void EraseArrows()
+    public void EraseArrows()
     {
         GameObject[] arrows = GameObject.FindGameObjectsWithTag("MovementArrow");
         foreach (GameObject arrow in arrows)

@@ -2718,6 +2718,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 51cbc57f56188fc448eaa219693a7f9d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &1261429858 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6270806920202185563, guid: 9d34e50fe559aba45b7cee36efefba08, type: 3}
+  m_PrefabInstance: {fileID: 1839608957}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &1452245133 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 381468899672501547, guid: 9d34e50fe559aba45b7cee36efefba08, type: 3}
@@ -3321,12 +3326,38 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 2411854483388046239, guid: 9d34e50fe559aba45b7cee36efefba08, type: 3}
   m_PrefabInstance: {fileID: 1839608957}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 1261429858}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 51cbc57f56188fc448eaa219693a7f9d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &2014902512
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1261429858}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b8602b91010f9064d95cb7d4e2c6d9a8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  arrowTailDown: {fileID: -342039230, guid: 73614dce9023e54408b5161b1bf0952d, type: 3}
+  arrowTailUp: {fileID: 1757992785, guid: 73614dce9023e54408b5161b1bf0952d, type: 3}
+  arrowTailLeft: {fileID: -149571576, guid: 73614dce9023e54408b5161b1bf0952d, type: 3}
+  arrowTailRight: {fileID: -2130905135, guid: 73614dce9023e54408b5161b1bf0952d, type: 3}
+  arrowDown: {fileID: 741743897, guid: 73614dce9023e54408b5161b1bf0952d, type: 3}
+  arrowUp: {fileID: -1591014949, guid: 73614dce9023e54408b5161b1bf0952d, type: 3}
+  arrowLeft: {fileID: 576038685, guid: 73614dce9023e54408b5161b1bf0952d, type: 3}
+  arrowRight: {fileID: 2059442317, guid: 73614dce9023e54408b5161b1bf0952d, type: 3}
+  arrowStraightHorizontal: {fileID: 898828940, guid: 73614dce9023e54408b5161b1bf0952d, type: 3}
+  arrowStraightVertical: {fileID: 23370952, guid: 73614dce9023e54408b5161b1bf0952d, type: 3}
+  arrowCurveBottomLeft: {fileID: -361690648, guid: 73614dce9023e54408b5161b1bf0952d, type: 3}
+  arrowCurveBottomRight: {fileID: 1264424565, guid: 73614dce9023e54408b5161b1bf0952d, type: 3}
+  arrowCurveTopLeft: {fileID: 739517906, guid: 73614dce9023e54408b5161b1bf0952d, type: 3}
+  arrowCurveTopRight: {fileID: 1710696540, guid: 73614dce9023e54408b5161b1bf0952d, type: 3}
 --- !u!1 &2016273772
 GameObject:
   m_ObjectHideFlags: 0
@@ -3372,6 +3403,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1d530625d3e012f438914531d8fb2f9d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  movementArrow: {fileID: 2014902512}
 --- !u!114 &2016273776
 MonoBehaviour:
   m_ObjectHideFlags: 0
