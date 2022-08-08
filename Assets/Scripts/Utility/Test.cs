@@ -8,6 +8,7 @@ using UnityEditor;
 public class Test : MonoBehaviour
 {
     public PlayerControls controls;
+    public MovementArrow movementArrow;
     private Pathfinding pathfinding;
     private GameObject marcel;
     private PathNode activeArrowNode;
@@ -52,8 +53,8 @@ public class Test : MonoBehaviour
         List<Vector3> vectorPath = pathfinding.FindPath(marcel.transform.position, position);
         if (vectorPath != null)
         {
-            MovementArrow.EraseArrows();
-            MovementArrow.DrawArrowPath(vectorPath);
+            movementArrow.EraseArrows();
+            movementArrow.DrawArrowPath(vectorPath);
         }
     }
 
