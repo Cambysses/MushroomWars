@@ -52,13 +52,6 @@ public class Pathfinding
         return grid;
     }
 
-    private bool CheckWalkable(PathNode node)
-    {
-        // bool walkable = !collisionTilemap.HasTile(node.gridPosition);
-        // return walkable;
-        return true;
-    }
-
     private List<PathNode> CalculatePath(PathNode endNode)
     {
         List<PathNode> path = new List<PathNode>();
