@@ -1,24 +1,45 @@
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
 public class Pathfinding
 {
+    public static Pathfinding Instance { get; private set; }
     [SerializeField] private Tilemap groundTilemap;
     [SerializeField] private Tilemap collisionTilemap;
-    public static Pathfinding Instance { get; private set; }
 
     // Heuristic cost of a regular move
     private const int STRAIGHT = 10;
 
     private Grid<PathNode> grid;
-    private List<PathNode> openList;
-    private List<PathNode> closedList;
+    private Heap<PathNode> openList;
+    private HashSet<PathNode> closedList;
+    private List<Vector3> movePositions;
+    private List<Vector3> collisionTiles;
 
     public Pathfinding(int width, int height)
     {
         Instance = this;
-        grid = new Grid<PathNode>(width, height, 1f, new Vector3(-10, -9), (Grid<PathNode> g, int x, int y) => new PathNode(g, x, y));
+        movePositions = new List<Vector3>();
+        groundTilemap = GameObject.Find("Walkable").GetComponent<Tilemap>();
+        collisionTilemap = GameObject.Find("Collidable").GetComponent<Tilemap>();
+
+        grid = new Grid<PathNode>(width, height, 1f, new Vector3(-30, -30), (Grid<PathNode> g, int x, int y) => new PathNode(g, x, y));
+        for (int x = 0; x < grid.GetWidth(); x++)
+        {
+            for (int y = 0; y < grid.GetHeight(); y++)
+            {
+                PathNode pathNode = grid.GetGridObject(x, y);
+                pathNode.worldPosition = grid.GetWorldPosition(x, y);
+                pathNode.gridPosition = collisionTilemap.WorldToCell(new Vector3(pathNode.worldPosition.x, pathNode.worldPosition.y));
+                pathNode.isWalkable = !collisionTilemap.HasTile(pathNode.gridPosition);
+                pathNode.neighbours = GetNeighbourList(pathNode);
+                pathNode.CalculateFCost();
+                pathNode.cameFromNode = null;
+            }
+        }
     }
 
     public PathNode GetNode(int x, int y)
@@ -33,12 +54,9 @@ public class Pathfinding
 
     private bool CheckWalkable(PathNode node)
     {
-        groundTilemap = GameObject.Find("Walkable").GetComponent<Tilemap>();
-        collisionTilemap = GameObject.Find("Collidable").GetComponent<Tilemap>();
-        Vector3 worldPosition = grid.GetWorldPosition(node.x, node.y);
-        Vector3Int gridPosition = groundTilemap.WorldToCell(new Vector3(worldPosition.x, worldPosition.y));
-        bool walkable = groundTilemap.HasTile(gridPosition) && !collisionTilemap.HasTile(gridPosition) ? true : false;
-        return walkable;
+        // bool walkable = !collisionTilemap.HasTile(node.gridPosition);
+        // return walkable;
+        return true;
     }
 
     private List<PathNode> CalculatePath(PathNode endNode)
@@ -55,6 +73,35 @@ public class Pathfinding
 
         path.Reverse();
         return path;
+    }
+
+    public List<Vector3> FindMovementArea(int radius, Vector3 startPosition)
+    {
+        for (int x = -radius; x <= radius; ++x)
+        {
+            for (int y = -radius; y <= radius; ++y)
+            {
+                if (Mathf.Abs(x) + Mathf.Abs(y) <= radius && startPosition != new Vector3(x, y))
+                {
+                    if (movePositions.Where(mp => mp.x == (startPosition.x + -1 + x) && mp.y == (startPosition.y + -1 + y)).Count() > 0)
+                    {
+                        continue;
+                    }
+                    List<Vector3> path = FindPath(startPosition, startPosition + new Vector3(-1, -1) + new Vector3(x, y));
+                    if (path != null && radius >= path.Count - 1)
+                    {
+                        movePositions.Add(path[path.Count - 1] + new Vector3(-1, -1));
+                    }
+                }
+            }
+        }
+
+        return movePositions;
+    }
+
+    public void ClearPositions()
+    {
+        movePositions.Clear();
     }
 
     public List<Vector3> FindPath(Vector3 startWorldPosition, Vector3 endWorldPosition)
@@ -83,8 +130,9 @@ public class Pathfinding
     {
         PathNode startNode = grid.GetGridObject(startX, StartY);
         PathNode endNode = grid.GetGridObject(EndX, EndY);
-        openList = new List<PathNode> { startNode };
-        closedList = new List<PathNode>();
+        openList = new Heap<PathNode>(grid.GetHeight() * grid.GetWidth());
+        closedList = new HashSet<PathNode>();
+        openList.Add(startNode);
 
         for (int x = 0; x < grid.GetWidth(); x++)
         {
@@ -92,8 +140,6 @@ public class Pathfinding
             {
                 PathNode pathNode = grid.GetGridObject(x, y);
                 pathNode.gCost = int.MaxValue;
-                pathNode.CalculateFCost();
-                pathNode.cameFromNode = null;
             }
         }
 
@@ -103,17 +149,16 @@ public class Pathfinding
 
         while (openList.Count > 0)
         {
-            PathNode currentNode = GetLowestFCostNode(openList);
+            PathNode currentNode = openList.RemoveFirst();
+            closedList.Add(currentNode);
+
             if (currentNode == endNode)
             {
                 // Reached final node.
                 return CalculatePath(endNode);
             }
 
-            openList.Remove(currentNode);
-            closedList.Add(currentNode);
-
-            foreach (PathNode neighbourNode in GetNeighbourList(currentNode))
+            foreach (PathNode neighbourNode in currentNode.neighbours)
             {
                 // Node is already in closed list.
                 if (closedList.Contains(neighbourNode))
@@ -122,7 +167,6 @@ public class Pathfinding
                 }
 
                 // Node is not walkable.
-                neighbourNode.isWalkable = CheckWalkable(neighbourNode);
                 if (!neighbourNode.isWalkable)
                 {
                     closedList.Add(neighbourNode);
@@ -144,9 +188,7 @@ public class Pathfinding
                 }
             }
         }
-
         // Out of nodes on openList. No usable path.
-        Debug.Log("No path found.");
         return null;
     }
 
@@ -186,23 +228,6 @@ public class Pathfinding
         int xDistance = Mathf.Abs(a.x - b.x);
         int yDistance = Mathf.Abs(a.y - b.y);
         int remaining = Mathf.Abs(xDistance - yDistance);
-
         return STRAIGHT + Mathf.Min(xDistance, yDistance) * remaining;
     }
-
-    private PathNode GetLowestFCostNode(List<PathNode> pathNodeList)
-    {
-        PathNode lowestFCostNode = pathNodeList[0];
-
-        for (int i = 1; i < pathNodeList.Count; i++)
-        {
-            if (pathNodeList[i].fCost < lowestFCostNode.fCost)
-            {
-                lowestFCostNode = pathNodeList[i];
-            }
-        }
-
-        return lowestFCostNode;
-    }
-
 }

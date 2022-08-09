@@ -1,7 +1,5 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.Tilemaps;
 
 public class PlayerMovement : MonoBehaviour
@@ -10,7 +8,6 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private Tilemap collisionTilemap;
     [SerializeField] private Animator animator;
     private PlayerControls controls;
-
     public CharacterStats stats;
     public GameObject follower;
     public GameObject master;
@@ -83,13 +80,6 @@ public class PlayerMovement : MonoBehaviour
             followerMovement.movePositions.RemoveAt(followerMovement.movePositions.Count - 1);
             followerMovement.isMoving = true;
 
-            // foreach (Vector3 position in newMovePositions)
-            // {
-            //     SetTileColor(HexToColor("96D7FF"), Vector3Int.FloorToInt(position + new Vector3(-1, -1)), GameObject.Find("Walkable").GetComponent<Tilemap>());
-            // }
-            // Vector3 lastPosition = newMovePositions[newMovePositions.Count - 1];
-            // SetTileColor(Color.green, Vector3Int.FloorToInt(lastPosition + new Vector3(-1, -1)), GameObject.Find("Walkable").GetComponent<Tilemap>());
-
             // Remove first node since we are already there.
             if (transform.position == new Vector3(newMovePositions[0].x, newMovePositions[0].y, transform.position.z))
             {
@@ -103,8 +93,8 @@ public class PlayerMovement : MonoBehaviour
     public void MoveToPosition(Vector3 movePosition)
     {
         previousPosition = transform.position;
-        facing = GetCardinal(movePosition - transform.position);
-        SetAnimation(facing);
+        facing = MathUtilities.GetCardinal(movePosition - transform.position);
+        animator.SetInteger("Facing", facing);
         transform.position = Vector3.MoveTowards(transform.position, movePosition, stats.moveSpeed * Time.deltaTime);
     }
 
@@ -113,34 +103,4 @@ public class PlayerMovement : MonoBehaviour
         tilemap.SetTileFlags(position, TileFlags.None);
         tilemap.SetColor(position, color);
     }
-
-    private int GetCardinal(Vector3 direction)
-    {
-        if (direction.y < 0) { return 0; }
-        else if (direction.x > 0) { return 1; }
-        else if (direction.y > 0) { return 2; }
-        else { return 3; }
-    }
-
-    private void SetAnimation(int facing)
-    {
-        animator.SetInteger("Facing", facing);
-    }
-
-    public Color HexToColor(string hex)
-    {
-        hex = hex.Replace("0x", "");//in case the string is formatted 0xFFFFFF
-        hex = hex.Replace("#", "");//in case the string is formatted #FFFFFF
-        byte a = 255;//assume fully visible unless specified in hex
-        byte r = byte.Parse(hex.Substring(0, 2), System.Globalization.NumberStyles.HexNumber);
-        byte g = byte.Parse(hex.Substring(2, 2), System.Globalization.NumberStyles.HexNumber);
-        byte b = byte.Parse(hex.Substring(4, 2), System.Globalization.NumberStyles.HexNumber);
-        //Only use alpha if the string has enough characters
-        if (hex.Length == 8)
-        {
-            a = byte.Parse(hex.Substring(6, 2), System.Globalization.NumberStyles.HexNumber);
-        }
-        return new Color32(r, g, b, a);
-    }
-
 }
