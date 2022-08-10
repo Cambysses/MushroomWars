@@ -55,7 +55,9 @@ public class Testing : MonoBehaviour
     {
         Stopwatch stopwatch = new Stopwatch();
         stopwatch.Start();
-        List<Vector3> moveableTiles = pathfinding.FindMovementArea(movement, marcel.transform.position);
+        pathfinding.GetGrid().GetXYFromPosition(marcel.transform.position, out int marcelX, out int marcelY);
+        List<Vector3> moveableTiles = pathfinding.FindMovementArea(movement, pathfinding.GetNode(marcelX-1, marcelY-1));
+        //List<Vector3> moveableTiles = pathfinding.FindMovementArea(movement, marcel.transform.position);
         foreach (Vector3 tile in moveableTiles)
         {
             DrawMovementTile(tile + new Vector3(1, 1));
