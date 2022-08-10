@@ -15,7 +15,6 @@ public class Pathfinding
 
     private Grid<PathNode> grid;
     private Heap<PathNode> openList;
-    private HashSet<PathNode> closedList;
     private List<Vector3> movePositions;
     private List<Vector3> collisionTiles;
 
@@ -34,10 +33,19 @@ public class Pathfinding
                 PathNode pathNode = grid.GetGridObject(x, y);
                 pathNode.worldPosition = grid.GetWorldPosition(x, y);
                 pathNode.gridPosition = collisionTilemap.WorldToCell(new Vector3(pathNode.worldPosition.x, pathNode.worldPosition.y));
+                pathNode.worldPosition += new Vector3(-0.5f, -0.5f); // >:)
                 pathNode.isWalkable = !collisionTilemap.HasTile(pathNode.gridPosition);
-                pathNode.neighbours = GetNeighbourList(pathNode);
                 pathNode.CalculateFCost();
                 pathNode.cameFromNode = null;
+            }
+        }
+        // we need to loop over once more, since each pathNode's isWalkable-property isn't set until the previous loop is done.
+        for (int x = 0; x < grid.GetWidth(); x++)
+        {
+            for (int y = 0; y < grid.GetHeight(); y++)
+            {
+                PathNode pathNode = grid.GetGridObject(x, y);
+                pathNode.neighbours = GetNeighbourList(pathNode);
             }
         }
     }
@@ -66,6 +74,26 @@ public class Pathfinding
 
         path.Reverse();
         return path;
+    }
+
+    public void FindMovementArea(int radius, PathNode startNode, int currentDepth)
+    {
+        if (currentDepth < radius)
+        {
+            foreach (PathNode neighbour in startNode.neighbours) 
+            {
+                FindMovementArea(radius, neighbour, currentDepth + 1);
+            }
+        }
+        if (!movePositions.Contains(startNode.worldPosition)) {
+            movePositions.Add(startNode.worldPosition);
+        }
+    }
+
+    public List<Vector3> FindMovementArea(int radius, PathNode startNode)
+    {
+        FindMovementArea(radius, startNode, 0);
+        return movePositions;
     }
 
     public List<Vector3> FindMovementArea(int radius, Vector3 startPosition)
@@ -124,7 +152,6 @@ public class Pathfinding
         PathNode startNode = grid.GetGridObject(startX, StartY);
         PathNode endNode = grid.GetGridObject(EndX, EndY);
         openList = new Heap<PathNode>(grid.GetHeight() * grid.GetWidth());
-        closedList = new HashSet<PathNode>();
         openList.Add(startNode);
 
         for (int x = 0; x < grid.GetWidth(); x++)
@@ -143,7 +170,6 @@ public class Pathfinding
         while (openList.Count > 0)
         {
             PathNode currentNode = openList.RemoveFirst();
-            closedList.Add(currentNode);
 
             if (currentNode == endNode)
             {
@@ -153,18 +179,6 @@ public class Pathfinding
 
             foreach (PathNode neighbourNode in currentNode.neighbours)
             {
-                // Node is already in closed list.
-                if (closedList.Contains(neighbourNode))
-                {
-                    continue;
-                }
-
-                // Node is not walkable.
-                if (!neighbourNode.isWalkable)
-                {
-                    closedList.Add(neighbourNode);
-                    continue;
-                }
 
                 int tentativeGCost = currentNode.gCost + CalculateDistanceCost(currentNode, neighbourNode);
                 if (tentativeGCost < neighbourNode.gCost)
@@ -188,29 +202,26 @@ public class Pathfinding
     private List<PathNode> GetNeighbourList(PathNode currentNode)
     {
         List<PathNode> neighbourList = new List<PathNode>();
+        List<int> deltas = new List<int>(){-1, 1};
 
-        if (currentNode.x - 1 >= 0)
+        foreach (int delta in deltas)
         {
-            // Left
-            neighbourList.Add(GetNode(currentNode.x - 1, currentNode.y));
-        }
-
-        if (currentNode.x + 1 < grid.GetWidth())
-        {
-            // Right
-            neighbourList.Add(GetNode(currentNode.x + 1, currentNode.y));
-        }
-
-        if (currentNode.y - 1 >= 0)
-        {
-            // Up
-            neighbourList.Add(GetNode(currentNode.x, currentNode.y - 1));
-        }
-
-        if (currentNode.y + 1 < grid.GetHeight())
-        {
-            // Down
-            neighbourList.Add(GetNode(currentNode.x, currentNode.y + 1));
+            int newX = currentNode.x + delta;
+            int newY = currentNode.y + delta;
+            if (newX >= 0 && newX < grid.GetWidth())
+            {
+                PathNode newNode = GetNode(newX, currentNode.y);
+                if (newNode.isWalkable) {
+                    neighbourList.Add(newNode);
+                }
+            }
+            if (newY >= 0 && newY < grid.GetHeight())
+            {
+                PathNode newNode = GetNode(currentNode.x, newY);
+                if (newNode.isWalkable) {
+                    neighbourList.Add(newNode);
+                }
+            }
         }
 
         return neighbourList;
