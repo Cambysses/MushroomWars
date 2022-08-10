@@ -78,20 +78,19 @@ public class Pathfinding
 
     public void FindMovementArea(int radius, PathNode startNode, int currentDepth)
     {
-        if (currentDepth < radius)
+        if (!movePositions.Contains(startNode.worldPosition) && currentDepth <= radius)
         {
+            movePositions.Add(startNode.worldPosition);
             foreach (PathNode neighbour in startNode.neighbours) 
             {
                 FindMovementArea(radius, neighbour, currentDepth + 1);
             }
         }
-        if (!movePositions.Contains(startNode.worldPosition)) {
-            movePositions.Add(startNode.worldPosition);
-        }
     }
 
     public List<Vector3> FindMovementArea(int radius, PathNode startNode)
     {
+        movePositions.Clear();
         FindMovementArea(radius, startNode, 0);
         return movePositions;
     }
